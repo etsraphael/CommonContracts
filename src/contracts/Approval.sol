@@ -17,7 +17,7 @@ import "./../../common/contracts/proxy/Proxy.sol";
  */
 contract InitializableOwnable is Context {
     address public _OWNER_;
-    address public _NEW_OWNER_;
+    address private _NEW_OWNER_;
 
     // ============ Events ============
 
@@ -33,7 +33,7 @@ contract InitializableOwnable is Context {
     }
 
     modifier onlyNewOwner() {
-        require(_msgSender() == _OWNER_, "NOT_NEW_OWNER");
+        require(_msgSender() == _NEW_OWNER_, "NOT_NEW_OWNER");
         _;
     }
 
@@ -51,10 +51,14 @@ contract InitializableOwnable is Context {
     }
 
     function claimOwnership() public onlyNewOwner {
-        require(_msgSender() == _NEW_OWNER_, "INVALID_CLAIM");
-        emit OwnershipTransferred(_OWNER_, _NEW_OWNER_);
-        _OWNER_ = _NEW_OWNER_;
+        emit OwnershipTransferred(_NEW_OWNER_, _msgSender());
+        _OWNER_ = _msgSender();
         _NEW_OWNER_ = address(0);
+    }
+
+    function burnContract() public onlyOwner {
+        emit OwnershipTransferred(_OWNER_, _msgSender());
+        _OWNER_ = address(0);
     }
 }
 
