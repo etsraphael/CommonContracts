@@ -78,7 +78,7 @@ contract Bet is Ownable {
             for (uint i = 0; i < participantList0.length; i++) {
                 uint256 amount = participants0[participantList0[i]];
                 uint256 percent = amount.mul(100).div(total0);
-                uint256 amountToTransfer = total1.mul(percent).div(100);
+                uint256 amountToTransfer = total1.mul(percent).div(100) + amount;
                 emit Withdraw(participantList0[i], amountToTransfer);
                 payable(participantList0[i]).transfer(amountToTransfer);
             }
@@ -86,7 +86,7 @@ contract Bet is Ownable {
             for (uint i = 0; i < participantList1.length; i++) {
                 uint256 amount = participants1[participantList1[i]];
                 uint256 percent = amount.mul(100).div(total1);
-                uint256 amountToTransfer = total0.mul(percent).div(100);
+                uint256 amountToTransfer = total0.mul(percent).div(100) + amount;
                 emit Withdraw(participantList1[i], amountToTransfer);
                 payable(participantList1[i]).transfer(amountToTransfer);
             }
