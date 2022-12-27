@@ -8,8 +8,9 @@ import "./../../common/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./../../common/contracts/utils/Context.sol";
 import "./../../common/contracts/access/Ownable.sol";
 import "./../../common/contracts/proxy/Proxy.sol";
+import "./../../common/contracts/env/Env.sol";
 
-contract Fundraising is Ownable {
+contract Fundraising is Ownable, Env {
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
@@ -50,9 +51,15 @@ contract Fundraising is Ownable {
 
     // ============ Functions ============
     
-   function addAmount() external payable {
+   function addAmount() external payable beforeDeadline {
         emit Deposit(_msgSender(), msg.value);
         total = total.add(msg.value);
+    }
+
+    function withdraw() external beforeDeadline {
+        uint256 amount = address(this).balance;
+        payable(_msgSender()).transfer(amount);
+        emit Withdraw(_msgSender(), amount);
     }
 
     
