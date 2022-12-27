@@ -5,8 +5,12 @@ import "./../utils/math/SafeMath.sol";
 pragma solidity ^0.8.0;
 
 abstract contract Env {
-    address payable private _protocol;
-    uint256 public _fee;
+
+    // ============ Storage ============
+
+    address payable private _protocol_address;
+    uint256 private _protocol_fee;
+    uint256 private _owner_fee;
 
     // ============ Library ============
 
@@ -15,29 +19,36 @@ abstract contract Env {
     // ============ Constructor ============
 
     constructor() {
-        _protocol = payable(0xB790F2178D35f244D9EecF1130496309eAE063be);
-        _fee = 1;
+        _protocol_address = payable(0xB790F2178D35f244D9EecF1130496309eAE063be);
+        _protocol_fee = 1;
     }
 
     // ============ Functions ============
 
-    function protocol() public view virtual returns (address) {
-        return _protocol;
+    function getProtocolAddress() public view virtual returns (address) {
+        return _protocol_address;
     }
 
-    function fee() public view virtual returns (uint256) {
-        return _fee;
+    function getProtocolFee() public view virtual returns (uint256) {
+        return _protocol_fee;
     }
 
-    // send transaction with protocol fees
-    function applyFeeAndGetAmount(address payable to, uint256 value, uint256 owner_fee) public returns (uint256) {
+    function getOwnerFee() public view virtual returns (uint256) {
+        return _owner_fee;
+    }
+
+    function setOwnerFee(uint256 owner_fee) public {
+        _owner_fee = owner_fee;
+    }
+
+    function applyFeeAndGetAmount(address payable to, uint256 value) public returns (uint256) {
 
         // send protocol fee
-        uint256 protocol_fee = value.mul(fee()).div(100);
-        payable(protocol()).transfer(protocol_fee);
+        uint256 protocol_fee = value.mul(getProtocolFee()).div(100);
+        payable(getProtocolAddress()).transfer(protocol_fee);
 
         // send owner fee
-        uint256 owner_fee_value = value.mul(owner_fee).div(100);
+        uint256 owner_fee_value = value.mul(getOwnerFee()).div(100);
         to.transfer(owner_fee_value);
 
         // return amount

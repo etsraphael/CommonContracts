@@ -12,10 +12,13 @@ import "./../../common/contracts/env/Env.sol";
 
 contract Fundraising is Ownable, Env {
 
+    // ============ Library ============
+
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     // ============ Storage ============
+
     uint256 public goal;
     uint256 public deadline;
     uint256 public total;
@@ -43,17 +46,19 @@ contract Fundraising is Ownable, Env {
 
     // ============ Constructor ============
 
-    constructor(uint256 _goal, uint256 _deadline) {
+    constructor(uint256 _goal, uint256 _deadline, uint256 owner_fee) {
         goal = _goal;
         deadline = _deadline;
         beneficiary = payable(_msgSender());
+        setOwnerFee(owner_fee);
     }
 
     // ============ Functions ============
     
    function addAmount() external payable beforeDeadline {
-        emit Deposit(_msgSender(), msg.value);
-        total = total.add(msg.value);
+        uint256 amount = applyFeeAndGetAmount(beneficiary, msg.value);
+        emit Deposit(_msgSender(), amount);
+        total = total.add(amount);
     }
 
     function withdraw() external beforeDeadline {
@@ -61,8 +66,5 @@ contract Fundraising is Ownable, Env {
         payable(_msgSender()).transfer(amount);
         emit Withdraw(_msgSender(), amount);
     }
-
-    
-
 
 }
